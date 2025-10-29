@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// Pakai relative import agar tidak tergantung nama package di pubspec.yaml
 import 'menu.dart';
 
 void main() {
@@ -9,7 +8,7 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // Root of your application.
+  // Root ala tutorial
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,9 +16,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)
             .copyWith(secondary: Colors.blueAccent[400]),
-        useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: MyHomePage(),
     );
   }
 }
