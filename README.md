@@ -99,7 +99,135 @@ Navigator.push(context, MaterialPageRoute(builder: (_) => const AnotherPage()));
 // kembali
 Navigator.pop(context);
 ```
+## Tugas 8 — Navigation, Layouts, Forms & Input (Football Shop)
+
+### 1) Perbedaan `Navigator.push()` vs `Navigator.pushReplacement()` (dan kapan dipakai)
+
+* **`Navigator.push()`**
+  Menambahkan halaman baru di atas *stack*. Cocok saat user menekan tombol di Home menuju **Create Product**, karena user mungkin ingin **kembali** ke Home.
+
+  ```dart
+  // Home (menu.dart) → CreateProductPage
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const CreateProductPage()),
+  );
+  ```
+* **`Navigator.pushReplacement()`**
+  **Mengganti** halaman aktif (halaman lama tidak tersisa di atas stack). Cocok untuk navigasi melalui **Drawer** antar “section utama” (Home ↔ Create Product) agar **tidak menumpuk** banyak layer halaman.
+
+  ```dart
+  // Drawer → Home
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (_) => const MyHomePage()),
+  );
+  ```
 
 ---
 
-"# football-shop-mobile" 
+### 2) Memanfaatkan hierarchy `Scaffold`, `AppBar`, dan `Drawer` agar struktur konsisten
+
+Setiap halaman memakai pola yang sama:
+
+```dart
+// Home
+Scaffold(
+  appBar: AppBar(title: const Text('Football Shop')),
+  drawer: const LeftDrawer(),   // konsisten di semua halaman
+  body: /* grid tombol */,
+);
+
+// Create Product
+Scaffold(
+  appBar: AppBar(title: const Text('Create Product')),
+  drawer: const LeftDrawer(),   // konsisten di semua halaman
+  body: /* form */,
+);
+```
+
+* **`Scaffold`** → kerangka halaman (app bar, body, drawer).
+* **`AppBar`** → judul/aksi yang konsisten (“Football Shop”).
+* **`Drawer`** → navigasi utama yang sama di seluruh halaman.
+  Pola ini membuat UI terasa familiar saat user berpindah halaman.
+
+---
+
+### 3) Kelebihan `Padding`, `SingleChildScrollView`, dan `ListView` untuk form (+ contoh)
+
+* **`Padding`**: jarak antar elemen → rapi, mudah dibaca & disentuh.
+* **`SingleChildScrollView`**: mencegah **overflow** saat keyboard muncul; form tetap bisa di-*scroll* di layar kecil.
+* **`ListView`**: efisien untuk **banyak** field (dinamis/panjang) karena *lazy build*.
+
+Contoh (Create Product):
+
+```dart
+// create_product_page.dart
+body: Form(
+  key: _formKey,
+  child: SingleChildScrollView(             // anti-overflow saat keyboard
+    padding: const EdgeInsets.only(bottom: 16),
+    child: Column(                          // ganti ke ListView jika field sangat banyak/dinamis
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: const [
+        Padding(
+          padding: EdgeInsets.all(8),
+          child: TextFormField(decoration: InputDecoration(labelText: 'Name')),
+        ),
+        Padding(
+          padding: EdgeInsets.all(8),
+          child: TextFormField(decoration: InputDecoration(labelText: 'Price')),
+        ),
+        // dst...
+      ],
+    ),
+  ),
+),
+```
+
+---
+
+### 4) Menyesuaikan warna tema agar identitas visual konsisten (brand Football Shop)
+
+Tetapkan **brand color** di `ThemeData` lalu gunakan warna dari **`ColorScheme`** di komponen.
+
+```dart
+// main.dart
+theme: ThemeData(
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: const Color(0xFF005F73), // contoh brand color Football Shop
+    brightness: Brightness.light,
+  ),
+  useMaterial3: true,
+),
+```
+
+Contoh pemakaian pada kartu tombol di Home (agar mengikuti brand):
+
+```dart
+// widgets/item_card.dart
+final scheme = Theme.of(context).colorScheme;
+
+return Material(
+  color: scheme.primary,                    // latar ikut brand
+  borderRadius: BorderRadius.circular(12),
+  child: InkWell(
+    onTap: onTap,
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: scheme.onPrimary, size: 30),  // kontras otomatis
+          const SizedBox(height: 8),
+          Text(title, style: TextStyle(color: scheme.onPrimary)),
+        ],
+      ),
+    ),
+  ),
+);
+```
+
+> (Opsional) Samakan juga `DrawerHeader` dengan `scheme.primary` agar seluruh navigasi terasa satu identitas.
+
+---
