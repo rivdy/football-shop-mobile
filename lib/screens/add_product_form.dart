@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../widgets/left_drawer.dart';
 
-const String baseUrl = "http://127.0.0.1:8000";
-
 class AddProductFormPage extends StatefulWidget {
   static const String routeName = '/add-product';
 
@@ -20,9 +18,18 @@ class _AddProductFormPageState extends State<AddProductFormPage> {
 
   String name = '';
   String description = '';
-  String category = '';
   String? thumbnailUrl;
+  String? category;
   int price = 0;
+  int stock = 0;
+  bool isFeatured = false;
+
+  final List<String> categories = [
+    'Sepatu',
+    'Jersey',
+    'Bola',
+    'Lainnya',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +49,7 @@ class _AddProductFormPageState extends State<AddProductFormPage> {
             children: [
               TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Nama Produk',
+                  labelText: 'Name',
                 ),
                 onSaved: (value) => name = value ?? '',
                 validator: (value) {
@@ -55,7 +62,7 @@ class _AddProductFormPageState extends State<AddProductFormPage> {
               const SizedBox(height: 16),
               TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Harga (IDR)',
+                  labelText: 'Price',
                 ),
                 keyboardType: TextInputType.number,
                 onSaved: (value) {
@@ -74,27 +81,7 @@ class _AddProductFormPageState extends State<AddProductFormPage> {
               const SizedBox(height: 16),
               TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Kategori',
-                ),
-                onSaved: (value) => category = value ?? '',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Kategori wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Thumbnail URL (opsional)',
-                ),
-                onSaved: (value) => thumbnailUrl = value,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Deskripsi',
+                  labelText: 'Description',
                 ),
                 maxLines: 3,
                 onSaved: (value) => description = value ?? '',
@@ -105,49 +92,108 @@ class _AddProductFormPageState extends State<AddProductFormPage> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Thumbnail',
+                ),
+                onSaved: (value) => thumbnailUrl = value,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                ),
+                value: category ?? 'Lainnya',
+                items: categories
+                    .map(
+                      (c) => DropdownMenuItem<String>(
+                        value: c,
+                        child: Text(c),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    category = value;
+                  });
+                },
+                onSaved: (value) => category = value,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Kategori wajib dipilih';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              CheckboxListTile(
+                value: isFeatured,
+                onChanged: (value) {
+                  setState(() {
+                    isFeatured = value ?? false;
+                  });
+                },
+                title: const Text('Is featured'),
+                controlAffinity: ListTileControlAffinity.leading,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Stock',
+                ),
+                keyboardType: TextInputType.number,
+                onSaved: (value) {
+                  stock = int.tryParse(value ?? '0') ?? 0;
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Stok wajib diisi';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Stok harus berupa angka';
+                  }
+                  return null;
+                },
+              ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () async {
                   if (!_formKey.currentState!.validate()) return;
-
                   _formKey.currentState!.save();
-                  final messenger = ScaffoldMessenger.of(context);
-                  final navigator = Navigator.of(context);
 
                   final response = await request.post(
-                    "$baseUrl/ajax/products/create/",
+                    "https://rivaldy-putra-footballshop.pbp.cs.ui.ac.id/ajax/products/create/",
                     {
                       "name": name,
                       "price": price.toString(),
                       "description": description,
-                      "category": category,
                       "thumbnail": thumbnailUrl ?? "",
+                      "category": category ?? "Lainnya",
+                      "stock": stock.toString(),
+                      "is_featured": isFeatured ? "on" : "",
+                      "user_id": request.jsonData["user_id"].toString(),
                     },
                   );
 
-                  if (!context.mounted) return;
+                  if (!mounted) return;
 
-                  if (response["ok"] == true || response["status"] == true) {
-                    messenger.showSnackBar(
+                  if (response["ok"] == true) {
+                    ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Produk berhasil ditambahkan.'),
+                        content: Text("Produk berhasil ditambahkan."),
                       ),
                     );
-                    navigator.pop();
+                    Navigator.pop(context);
                   } else {
-                    messenger.showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                          (response["message"] ??
-                                  response["errors"]?.toString() ??
-                                  "Gagal menambah produk.")
-                              .toString(),
-                        ),
+                        content: Text(response["errors"].toString()),
                       ),
                     );
                   }
                 },
-                child: const Text('Simpan Produk'),
+                child: const Text('Simpan'),
               ),
             ],
           ),

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
+import '../constants.dart';
 import '../models/product.dart';
 import '../widgets/left_drawer.dart';
 import 'product_detail.dart';
-
-const String baseUrl = "http://127.0.0.1:8000";
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
-const String baseUrl = "http://127.0.0.1:8000";
+import '../constants.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -31,7 +31,7 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             TextField(
               decoration: const InputDecoration(labelText: "Username"),
-              onChanged: (value) => username = value,
+              onChanged: (value) => username = value.trim(),
             ),
             const SizedBox(height: 16),
             TextField(

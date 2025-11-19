@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
+import '../constants.dart';
 import 'menu.dart';
 import 'register.dart';
-
-const String baseUrl = "http://127.0.0.1:8000";
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
