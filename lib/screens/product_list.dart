@@ -16,26 +16,27 @@ class ProductListPage extends StatefulWidget {
 
 class _ProductListPageState extends State<ProductListPage> {
   Future<List<Product>> fetchProducts(BuildContext context) async {
-    final request = Provider.of<CookieRequest>(context, listen: false);
+  final request = Provider.of<CookieRequest>(context, listen: false);
 
-    final response = await request.get(
-      "$baseUrl/api/flutter/products/",
-    );
+  final response = await request.get(
+    '$baseUrl/api/flutter/products/?filter=my',
+  );
 
-    final List<Product> products = [];
-    final List<dynamic> data = response as List<dynamic>;
-
-    for (final item in data) {
-      products.add(Product.fromJson(item as Map<String, dynamic>));
-    }
-    return products;
+  // Kalau sampai sini tidak error, berarti endpoint benar-benar mengirim JSON list
+  final List<Product> products = [];
+  final List<dynamic> data = response as List<dynamic>;
+  for (final item in data) {
+    products.add(Product.fromJson(item as Map<String, dynamic>));
   }
+  return products;
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Daftar Produk"),
+        title: const Text('Daftar Produk'),
         centerTitle: true,
       ),
       drawer: const LeftDrawer(),
@@ -46,9 +47,15 @@ class _ProductListPageState extends State<ProductListPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Gagal memuat produk: ${snapshot.error}'),
+            );
+          }
+
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
-              child: Text("Belum ada produk."),
+              child: Text('Belum ada produk.'),
             );
           }
 
@@ -76,7 +83,7 @@ class _ProductListPageState extends State<ProductListPage> {
                     product.name,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  subtitle: Text("Rp ${product.price}"),
+                  subtitle: Text('Rp ${product.price}'),
                   trailing: product.isFeatured
                       ? const Icon(Icons.star, color: Colors.amber)
                       : null,

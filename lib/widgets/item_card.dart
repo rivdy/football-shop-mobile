@@ -29,10 +29,11 @@ class ItemCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Center(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 40, color: Colors.white),
-                const SizedBox(height: 12),
+                Icon(icon, size: 32, color: Colors.white),
+                const SizedBox(height: 8),
                 Text(
                   title,
                   textAlign: TextAlign.center,

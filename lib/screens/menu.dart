@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:provider/provider.dart';
-
 import '../widgets/item_card.dart';
 import '../widgets/left_drawer.dart';
 import 'add_product_form.dart';
-import 'login.dart';
 import 'product_list.dart';
 
 class MenuPage extends StatelessWidget {
@@ -13,14 +9,17 @@ class MenuPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final request = Provider.of<CookieRequest>(context);
-
     final items = [
       {
-        'title': 'See Products',
+        'title': 'All Products',
         'icon': Icons.list_alt_outlined,
-        'color': Colors.blue, // biru
+        'color': const Color(0xFF1E88E5),
         'onTap': () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Kamu telah menekan tombol All Products'),
+            ),
+          );
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -30,33 +29,29 @@ class MenuPage extends StatelessWidget {
         },
       },
       {
-        'title': 'Tambah Produk',
-        'icon': Icons.add_box_outlined,
-        'color': Colors.green, // hijau
+        'title': 'My Products',
+        'icon': Icons.person_outline,
+        'color': const Color(0xFF43A047),
         'onTap': () {
-          Navigator.pushNamed(context, AddProductFormPage.routeName);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Kamu telah menekan tombol My Products'),
+            ),
+          );
+          // kalau nanti mau filter "my", bisa diarahkan ke page khusus/filter
         },
       },
       {
-        'title': 'Logout',
-        'icon': Icons.logout,
-        'color': Colors.red, // merah
-        'onTap': () async {
-          final response = await request.logout(
-            "https://rivaldy-putra-footballshop.pbp.cs.ui.ac.id/auth/logout/",
+        'title': 'Create Product',
+        'icon': Icons.add_box_outlined,
+        'color': const Color(0xFFE53935),
+        'onTap': () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Kamu telah menekan tombol Create Product'),
+            ),
           );
-
-          if (response["status"] == true || request.loggedIn == false) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const LoginPage()),
-              (route) => false,
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Logout gagal.")),
-            );
-          }
+          Navigator.pushNamed(context, AddProductFormPage.routeName);
         },
       },
     ];
@@ -78,8 +73,8 @@ class MenuPage extends StatelessWidget {
                 (e) => ItemCard(
                   title: e['title'] as String,
                   icon: e['icon'] as IconData,
-                  onTap: e['onTap'] as VoidCallback,
                   backgroundColor: e['color'] as Color,
+                  onTap: e['onTap'] as VoidCallback,
                 ),
               )
               .toList(),

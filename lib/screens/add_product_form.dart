@@ -3,6 +3,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/left_drawer.dart';
+import '../constants.dart'; // pastikan ada: const baseUrl = "https://rivaldy-putra-footballshop.pbp.cs.ui.ac.id";
 
 class AddProductFormPage extends StatefulWidget {
   static const String routeName = '/add-product';
@@ -19,16 +20,17 @@ class _AddProductFormPageState extends State<AddProductFormPage> {
   String name = '';
   String description = '';
   String? thumbnailUrl;
-  String? category;
   int price = 0;
   int stock = 0;
   bool isFeatured = false;
 
-  final List<String> categories = [
-    'Sepatu',
-    'Jersey',
-    'Bola',
-    'Lainnya',
+  String _selectedCategoryValue = 'lainnya';
+
+  final List<Map<String, String>> categories = [
+    {'value': 'sepatu', 'label': 'Sepatu'},
+    {'value': 'jersey', 'label': 'Jersey'},
+    {'value': 'bola', 'label': 'Bola'},
+    {'value': 'lainnya', 'label': 'Lainnya'},
   ];
 
   @override
@@ -104,21 +106,23 @@ class _AddProductFormPageState extends State<AddProductFormPage> {
                 decoration: const InputDecoration(
                   labelText: 'Category',
                 ),
-                value: category ?? 'Lainnya',
+                value: _selectedCategoryValue,
                 items: categories
                     .map(
                       (c) => DropdownMenuItem<String>(
-                        value: c,
-                        child: Text(c),
+                        value: c['value'],
+                        child: Text(c['label']!),
                       ),
                     )
                     .toList(),
                 onChanged: (value) {
                   setState(() {
-                    category = value;
+                    _selectedCategoryValue = value ?? 'lainnya';
                   });
                 },
-                onSaved: (value) => category = value,
+                onSaved: (value) {
+                  _selectedCategoryValue = value ?? 'lainnya';
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Kategori wajib dipilih';
@@ -163,16 +167,15 @@ class _AddProductFormPageState extends State<AddProductFormPage> {
                   _formKey.currentState!.save();
 
                   final response = await request.post(
-                    "https://rivaldy-putra-footballshop.pbp.cs.ui.ac.id/ajax/products/create/",
+                    "$baseUrl/ajax/products/create/",
                     {
                       "name": name,
                       "price": price.toString(),
                       "description": description,
                       "thumbnail": thumbnailUrl ?? "",
-                      "category": category ?? "Lainnya",
+                      "category": _selectedCategoryValue,
                       "stock": stock.toString(),
                       "is_featured": isFeatured ? "on" : "",
-                      "user_id": request.jsonData["user_id"].toString(),
                     },
                   );
 
